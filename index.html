@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ISO 9001:2015 Chatbot</title>
+  <title>Saudi Labor Law Assistant</title>
   <style>
     :root {
-      --primary: #007bff;
+      --primary: #0d6efd;
       --bg: #f8f9fa;
       --bot: #e9ecef;
       --text-dark: #212529;
@@ -38,7 +38,7 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* === SIDE SLOGANS (background-level) === */
+    /* === SIDE SLOGANS === */
     .slogan {
       position: absolute;
       top: 50%;
@@ -212,13 +212,13 @@
 </head>
 <body>
   <!-- === SIDE BACKGROUND SLOGANS === -->
-  <div class="slogan left">Together we achieve quality</div>
-  <div class="slogan right">معًا نصنع الجودة</div>
+  <div class="slogan left">Know your rights — Saudi Labor Law</div>
+  <div class="slogan right">اعرف حقوقك — نظام العمل السعودي</div>
 
   <!-- === CHAT PANEL === -->
   <div class="chat-container">
     <div class="chat-header">
-      <span class="title">ISO 9001:2015 Assistant</span>
+      <span class="title">Saudi Labor Law Assistant</span>
       <div class="author">
         <span>Fawaz Aljathnan</span>
         <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
@@ -227,11 +227,11 @@
     </div>
 
     <div class="chat-box" id="chat-box">
-      <div class="message bot">👋 Hi there! Ask me anything about ISO 9001:2015.</div>
+      <div class="message bot">👋 Welcome! Ask me anything about the Saudi Labor Law (نظام العمل السعودي).</div>
     </div>
 
     <form id="chat-form">
-      <textarea id="user-input" placeholder="Ask your question..." rows="1"></textarea>
+      <textarea id="user-input" placeholder="Type your question here (اكتب سؤالك هنا)..." rows="1"></textarea>
       <button type="submit">Send</button>
     </form>
   </div>
@@ -242,6 +242,7 @@
     const chatBox = document.getElementById("chat-box");
     const toggleBtn = document.getElementById("toggle-theme");
 
+    // Change this to your backend deployment URL if different
     const BACKEND_URL = "https://web-production-86a3c.up.railway.app";
 
     // Restore dark mode preference
