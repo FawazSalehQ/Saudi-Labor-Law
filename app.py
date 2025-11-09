@@ -1,17 +1,19 @@
 import os
+import re
+import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pypdf import PdfReader
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from openai import OpenAI
-import numpy as np
 
 app = Flask(__name__)
 CORS(app)
 
 # === Config ===
-PDF_PATH = os.getenv("PDF_PATH", "ISO_9001_2015.pdf")
+PDF_PATH_AR = os.getenv("PDF_PATH_AR", "saudi_labor_law_arabic.pdf")
+PDF_PATH_EN = os.getenv("PDF_PATH_EN", "saudi_labor_law_english.pdf")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL = "gpt-4o-mini"
 
@@ -31,25 +33,46 @@ def read_pdf_text(path):
 def chunk_text(text, chunk_size=1200, overlap=200):
     chunks = []
     for i in range(0, len(text), chunk_size - overlap):
-        chunks.append(text[i:i + chunk_size].strip())
+        chunk = text[i:i + chunk_size].strip()
+        if len(chunk) > 200:  # skip very small fragments
+            chunks.append(chunk)
     return chunks
 
-print("🔹 Loading PDF...")
-text = read_pdf_text(PDF_PATH)
-chunks = chunk_text(text)
-print(f"✅ Loaded {len(chunks)} chunks from {PDF_PATH}")
+print("🔹 Loading Arabic and English Labor Law PDFs...")
+text_ar = read_pdf_text(PDF_PATH_AR)
+text_en = read_pdf_text(PDF_PATH_EN)
 
-# === Build TF-IDF Index ===
-vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=2)
-tfidf = vectorizer.fit_transform(chunks)
-print("✅ TF-IDF index ready.")
+chunks_ar = chunk_text(text_ar)
+chunks_en = chunk_text(text_en)
 
-# === Retrieval ===
-def retrieve_context(question, top_k=5):
-    q_vec = vectorizer.transform([question])
-    sims = cosine_similarity(tfidf, q_vec).ravel()
-    idx = np.argsort(-sims)[:top_k]
-    return "\n\n".join(chunks[i] for i in idx)
+print(f"✅ Loaded {len(chunks_ar)} Arabic chunks and {len(chunks_en)} English chunks.")
+
+# === Build TF-IDF Indexes ===
+vectorizer_ar = TfidfVectorizer(stop_words=None, ngram_range=(1, 2), min_df=2)
+vectorizer_en = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=2)
+
+tfidf_ar = vectorizer_ar.fit_transform(chunks_ar)
+tfidf_en = vectorizer_en.fit_transform(chunks_en)
+
+print("✅ Arabic and English TF-IDF indexes ready.")
+
+# === Language Detection ===
+def detect_language(text):
+    arabic_chars = re.findall(r"[\u0600-\u06FF]", text)
+    return "ar" if len(arabic_chars) / max(len(text), 1) > 0.2 else "en"
+
+# === Context Retrieval ===
+def retrieve_context(question, lang="en", top_k=5):
+    if lang == "ar":
+        vec = vectorizer_ar.transform([question])
+        sims = cosine_similarity(tfidf_ar, vec).ravel()
+        idx = np.argsort(-sims)[:top_k]
+        return "\n\n".join(chunks_ar[i] for i in idx)
+    else:
+        vec = vectorizer_en.transform([question])
+        sims = cosine_similarity(tfidf_en, vec).ravel()
+        idx = np.argsort(-sims)[:top_k]
+        return "\n\n".join(chunks_en[i] for i in idx)
 
 # === Endpoint ===
 @app.route("/ask", methods=["POST"])
@@ -59,33 +82,36 @@ def ask():
     if not q:
         return jsonify({"error": "No question provided"}), 400
 
-    context = retrieve_context(q)
+    lang = detect_language(q)
+    context = retrieve_context(q, lang)
 
-    system_prompt = (
-    "You are a professional bilingual assistant specializing in ISO 9001:2015. "
-    "You can fluently understand and respond in both English and Arabic. "
-    "Always reply in the same language the user used — if the question is in Arabic, answer in Arabic; "
-    "if it’s in English, answer in English. "
-    "Respond only in plain text without any markdown, bold, italics, bullet points, emojis, or decorative punctuation. "
-    "Use complete sentences and organized paragraphs that are clear, coherent, and professional. "
-    "Focus on accuracy and logical explanation. "
-    "When relevant, refer naturally to clause numbers or section titles, for example, as stated in Clause 8.5. "
-    "If the document does not directly provide the answer, explain based on ISO 9001:2015 principles "
-    "and clearly mention that it is an interpretation, not a direct quote. "
-    "When responding in Arabic, write in formal Modern Standard Arabic (الفصحى) with clear and professional phrasing."
-)
+    if lang == "ar":
+        system_prompt = (
+            "أنت مساعد قانوني متخصص في نظام العمل السعودي. "
+            "تستند إجاباتك إلى نظام العمل السعودي بنسختيه العربية والإنجليزية، "
+            "وتلتزم بالصياغة الرسمية والواضحة باللغة العربية الفصحى. "
+            "عند الاقتضاء، أشر إلى المادة ذات الصلة مثل (المادة ٨٠). "
+            "أجب بإيجاز ووضوح دون استخدام زخارف أو رموز أو تنسيق خاص."
+        )
+    else:
+        system_prompt = (
+            "You are a legal assistant specializing in the Saudi Labor Law. "
+            "Base your answers on both the Arabic and English versions of the law. "
+            "When applicable, refer to the relevant article (e.g., Article 80). "
+            "Respond in clear, professional English prose with no markdown, symbols, or formatting."
+        )
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Question: {q}\n\nDocument:\n{context}"}
+        {"role": "user", "content": f"Question: {q}\n\nRelevant Text:\n{context}"}
     ]
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=MODEL,
             messages=messages,
-            temperature=0.2,
-            max_tokens=400
+            temperature=0.3,
+            max_tokens=500
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
