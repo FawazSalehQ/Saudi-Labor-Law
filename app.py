@@ -17,8 +17,11 @@ PDF_PATH_EN = os.getenv("PDF_PATH_EN", "saudi_labor_law_english.pdf")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL = "gpt-4o-mini"
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    raise ValueError("Missing OPENAI_API_KEY in environment variables.")
+    print("⚠️ Warning: Missing OPENAI_API_KEY. App will not function properly.")
+else:
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
