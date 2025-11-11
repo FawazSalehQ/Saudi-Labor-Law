@@ -7,8 +7,6 @@
 
   <!-- 🇸🇦 Favicon -->
   <link rel="icon" type="image/png" href="saudi_sigil.png" />
-  <link rel="apple-touch-icon" href="saudi_sigil.png">
-  <link rel="shortcut icon" type="image/png" href="saudi_sigil.png">
 
   <style>
     :root {
@@ -20,8 +18,6 @@
       --header-text: #ffffff;
       --slogan-color: rgba(0, 50, 25, 0.12);
       --accent: #d4af37;
-      --input-bg: #ffffff;
-      --input-border: #ccc;
     }
 
     body.dark {
@@ -33,8 +29,6 @@
       --header-text: #f1f1f1;
       --slogan-color: rgba(255, 255, 255, 0.15);
       --accent: #d4af37;
-      --input-bg: #1c211c;
-      --input-border: #2e2e2e;
     }
 
     body {
@@ -53,53 +47,60 @@
     .slogan {
       position: absolute;
       top: 50%;
+      transform: translateY(-50%);
       font-size: 20px;
       font-weight: 500;
       color: var(--slogan-color);
+      pointer-events: none;
       user-select: none;
       writing-mode: vertical-rl;
       text-orientation: mixed;
+      transition: color 0.3s ease;
     }
 
-    .slogan.left { left: 35px; transform: rotate(180deg); }
-    .slogan.right { right: 35px; }
+    .slogan.left { left: 40px; transform: translateY(-50%) rotate(180deg); }
+    .slogan.right { right: 40px; }
 
     .chat-container {
       width: 100%;
-      max-width: 620px;
-      height: 82vh;
+      max-width: 600px;
+      height: 80vh;
       display: flex;
       flex-direction: column;
       background: var(--bg);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       overflow: hidden;
       border: 1px solid #e3e7e2;
+      position: relative;
+      z-index: 2;
       transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .chat-header {
       background: var(--header-bg);
       color: var(--header-text);
-      padding: 14px 20px;
+      padding: 12px 18px;
       font-size: 18px;
       font-weight: 600;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .chat-header .author {
-      font-size: 14px;
+    .chat-header .title { font-weight: 600; }
+
+    .chat-header .actions {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px; /* Increased spacing to prevent misclicks */
     }
 
     .chat-header a {
       color: var(--header-text);
       text-decoration: none;
-      font-weight: 500;
+      font-size: 14px;
     }
 
     .chat-header a:hover { text-decoration: underline; }
@@ -110,57 +111,51 @@
       color: var(--header-text);
       font-size: 18px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s;
     }
 
     .toggle-btn:hover, .clear-btn:hover { transform: scale(1.2); }
 
-    .icon-group {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
     .chat-box {
       flex: 1;
-      padding: 18px;
+      padding: 16px;
       overflow-y: auto;
-      position: relative;
       background: var(--bg);
+      position: relative;
       transition: background 0.3s ease;
-      z-index: 1;
     }
 
     .chat-box::before {
       content: "";
       position: absolute;
-      inset: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 60%;
       background: url('saudi_sigil.png') no-repeat center center;
-      background-size: 45%;
-      opacity: 0.22;
-      filter: grayscale(100%) contrast(1.1);
+      background-size: contain;
+      opacity: 0.2;
       pointer-events: none;
       z-index: 0;
+      filter: grayscale(100%);
     }
 
     body.dark .chat-box::before {
-      opacity: 0.16;
-      filter: brightness(0.8);
+      opacity: 0.1;
+      filter: brightness(0.7);
     }
+
+    .message, form { position: relative; z-index: 1; }
 
     .message {
-      margin: 10px 0;
-      padding: 12px 16px;
-      border-radius: 12px;
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
       max-width: 80%;
       line-height: 1.5;
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
+      word-wrap: break-word;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     .user {
@@ -177,30 +172,39 @@
       border-bottom-left-radius: 2px;
     }
 
-    /* ✅ Timestamp + Copy Button Aligned Side-by-Side */
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 6px;
+    .bot h3, .bot h4 {
+      margin: 8px 0 4px;
+      font-size: 15px;
+      color: var(--primary);
     }
 
-    .timestamp {
+    .bot ul {
+      margin: 4px 0 4px 18px;
+      padding-left: 10px;
+    }
+
+    .bot li {
+      margin-bottom: 4px;
+      line-height: 1.5;
+    }
+
+    .message-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
       font-size: 11px;
-      opacity: 0.6;
+      opacity: 0.7;
     }
 
     .copy-btn {
-      font-size: 12px;
-      background: none;
-      border: none;
-      color: var(--primary);
       cursor: pointer;
-      opacity: 0.8;
-      transition: color 0.2s ease;
+      border: none;
+      background: none;
+      color: var(--primary);
+      font-size: 12px;
     }
-
-    .copy-btn:hover { color: var(--accent); }
 
     form {
       display: flex;
@@ -208,21 +212,29 @@
       padding: 10px;
       border-top: 1px solid #d9ded8;
       background: var(--bg);
+      transition: background 0.3s ease;
     }
 
     textarea {
       flex: 1;
       padding: 12px;
-      border: 1px solid var(--input-border);
+      border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 15px;
+      outline: none;
       resize: none;
       min-height: 40px;
       max-height: 150px;
       overflow-y: auto;
-      background: var(--input-bg);
+      background: #ffffff;
       color: var(--text-dark);
-      transition: border-color 0.2s ease, background 0.3s ease, color 0.3s ease;
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark textarea {
+      background: #1c211c;
+      color: #f1f1f1;
+      border-color: #333;
     }
 
     textarea:focus {
@@ -232,21 +244,19 @@
 
     button {
       margin-left: 8px;
-      padding: 10px 20px;
+      padding: 0 18px;
       background: var(--primary);
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 500;
       transition: background 0.2s ease, transform 0.2s ease;
     }
 
-    button:hover { background: #00542a; transform: translateY(-1px); }
-
-    .typing {
-      opacity: 0.8;
-      font-style: italic;
+    button:hover {
+      background: #00542a;
+      transform: translateY(-1px);
     }
 
     ::-webkit-scrollbar { width: 8px; }
@@ -260,13 +270,10 @@
   <div class="chat-container">
     <div class="chat-header">
       <span class="title">Saudi Labor Law Assistant</span>
-      <div class="author">
-        <span>Fawaz Aljathnan</span>
+      <div class="actions">
         <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
-        <div class="icon-group">
-          <button id="clear-chat" class="clear-btn" title="Clear chat">🗑️</button>
-          <button id="toggle-theme" class="toggle-btn" title="Toggle theme">🌙</button>
-        </div>
+        <button id="clear-chat" class="clear-btn" title="Clear chat">🗑️</button>
+        <button id="toggle-theme" class="toggle-btn" title="Toggle theme">🌙</button>
       </div>
     </div>
 
@@ -275,19 +282,23 @@
     </div>
 
     <form id="chat-form">
-      <textarea id="user-input" placeholder="Type your question here (اكتب سؤالك هنا)..." rows="1" autofocus></textarea>
+      <textarea id="user-input" placeholder="Type your question here (اكتب سؤالك هنا)..." rows="1"></textarea>
       <button type="submit">Send</button>
     </form>
   </div>
 
+  <!-- ✅ Markdown rendering support -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     const form = document.getElementById("chat-form");
     const input = document.getElementById("user-input");
     const chatBox = document.getElementById("chat-box");
     const toggleBtn = document.getElementById("toggle-theme");
     const clearBtn = document.getElementById("clear-chat");
+
     const BACKEND_URL = "https://saudi-labor-law-production.up.railway.app";
 
+    // Restore dark mode
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       toggleBtn.textContent = "☀️";
@@ -300,52 +311,34 @@
       localStorage.setItem("theme", darkMode ? "dark" : "light");
     });
 
-    const savedChat = localStorage.getItem("chatHistory");
-    if (savedChat) chatBox.innerHTML = savedChat;
+    clearBtn.addEventListener("click", () => {
+      chatBox.innerHTML = '<div class="message bot">👋 Chat cleared. Ask me about the Saudi Labor Law (نظام العمل السعودي).</div>';
+    });
 
     function appendMessage(text, sender) {
       const msg = document.createElement("div");
       msg.classList.add("message", sender);
 
       const content = document.createElement("div");
-      content.textContent = text;
+      content.innerHTML = marked.parse(text);
       msg.appendChild(content);
 
-      const meta = document.createElement("div");
-      meta.classList.add("meta-row");
-
-      const time = document.createElement("div");
-      time.classList.add("timestamp");
-      time.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-
-      meta.appendChild(time);
-
       if (sender === "bot") {
+        const footer = document.createElement("div");
+        footer.classList.add("message-footer");
         const copyBtn = document.createElement("button");
         copyBtn.classList.add("copy-btn");
         copyBtn.textContent = "Copy";
-        copyBtn.onclick = () => {
-          navigator.clipboard.writeText(text);
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => (copyBtn.textContent = "Copy"), 2000);
-        };
-        meta.appendChild(copyBtn);
+        copyBtn.onclick = () => navigator.clipboard.writeText(text);
+        const timestamp = document.createElement("span");
+        timestamp.textContent = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+        footer.append(copyBtn, timestamp);
+        msg.appendChild(footer);
       }
 
-      msg.appendChild(meta);
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
-      saveChat();
     }
-
-    function saveChat() {
-      localStorage.setItem("chatHistory", chatBox.innerHTML);
-    }
-
-    clearBtn.addEventListener("click", () => {
-      chatBox.innerHTML = '<div class="message bot">🧾 Chat cleared. You can start a new question.</div>';
-      saveChat();
-    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -356,7 +349,7 @@
       input.value = "";
 
       const typing = document.createElement("div");
-      typing.classList.add("message", "bot", "typing");
+      typing.classList.add("message", "bot");
       typing.textContent = "Thinking...";
       chatBox.appendChild(typing);
       chatBox.scrollTop = chatBox.scrollHeight;
@@ -369,7 +362,7 @@
         });
         const data = await res.json();
         typing.remove();
-        appendMessage(data.answer || "No answer found in the law documents.", "bot");
+        appendMessage(data.answer || "No answer found in the document.", "bot");
       } catch (err) {
         typing.remove();
         appendMessage("⚠️ Error contacting backend.", "bot");
