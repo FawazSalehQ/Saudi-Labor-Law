@@ -10,19 +10,19 @@
 
   <style>
     :root {
-      --primary: #006c35;            /* Saudi green */
-      --bg: #fdfdfb;                 /* Warm white */
-      --bot: #f1f5f2;                /* Gentle sage for bot replies */
-      --text-dark: #1b1d1a;          /* Deep neutral text */
-      --header-bg: #006c35;          /* Consistent Saudi green */
+      --primary: #006c35;
+      --bg: #fdfdfb;
+      --bot: #f1f5f2;
+      --text-dark: #1b1d1a;
+      --header-bg: #006c35;
       --header-text: #ffffff;
       --slogan-color: rgba(0, 50, 25, 0.12);
-      --accent: #d4af37;             /* Gold accent */
+      --accent: #d4af37;
     }
 
     body.dark {
-      --primary: #009b5a;            /* Emerald green for dark mode */
-      --bg: #121712;                 /* Deep green-black */
+      --primary: #009b5a;
+      --bg: #121712;
       --bot: #1c211c;
       --text-dark: #e8ede8;
       --header-bg: #0a3f21;
@@ -45,7 +45,6 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* === SIDE SLOGANS === */
     .slogan {
       position: absolute;
       top: 50%;
@@ -69,7 +68,6 @@
       right: 40px;
     }
 
-    /* === CHAT CONTAINER === */
     .chat-container {
       width: 100%;
       max-width: 600px;
@@ -82,11 +80,10 @@
       overflow: hidden;
       border: 1px solid #e3e7e2;
       position: relative;
-      transition: background 0.3s ease, border-color 0.3s ease;
       z-index: 2;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    /* === HEADER === */
     .chat-header {
       background: var(--header-bg);
       color: var(--header-text);
@@ -120,7 +117,6 @@
       text-decoration: underline;
     }
 
-    /* === DARK MODE TOGGLE === */
     .toggle-btn {
       background: transparent;
       border: none;
@@ -135,7 +131,6 @@
       transform: scale(1.2);
     }
 
-    /* === CHAT BOX === */
     .chat-box {
       flex: 1;
       padding: 16px;
@@ -145,7 +140,6 @@
       transition: background 0.3s ease;
     }
 
-    /* === Saudi Sigil Watermark === */
     .chat-box::before {
       content: "";
       position: absolute;
@@ -250,11 +244,9 @@
   </style>
 </head>
 <body>
-  <!-- === SIDE BACKGROUND SLOGANS === -->
   <div class="slogan left">Know your rights — Saudi Labor Law</div>
   <div class="slogan right">اعرف حقوقك — نظام العمل السعودي</div>
 
-  <!-- === CHAT PANEL === -->
   <div class="chat-container">
     <div class="chat-header">
       <span class="title">Saudi Labor Law Assistant</span>
@@ -281,8 +273,8 @@
     const chatBox = document.getElementById("chat-box");
     const toggleBtn = document.getElementById("toggle-theme");
 
-    // ✅ Backend API URL
-    const BACKEND_URL = "https://web-production-86a3c.up.railway.app";
+    // ✅ New backend API URL
+    const BACKEND_URL = "https://saudi-labor-law-production.up.railway.app";
 
     // Restore dark mode preference
     if (localStorage.getItem("theme") === "dark") {
@@ -290,7 +282,6 @@
       toggleBtn.textContent = "☀️";
     }
 
-    // Theme toggle
     toggleBtn.addEventListener("click", () => {
       document.body.classList.toggle("dark");
       const darkMode = document.body.classList.contains("dark");
@@ -335,7 +326,6 @@
       }
     });
 
-    // Auto-expand textarea
     input.addEventListener("input", () => {
       input.style.height = "auto";
       input.style.height = input.scrollHeight + "px";
