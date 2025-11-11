@@ -115,7 +115,6 @@
 
     .toggle-btn:hover, .clear-btn:hover { transform: scale(1.2); }
 
-    /* 🔹 Spacing between icons */
     .icon-group {
       display: flex;
       align-items: center;
@@ -132,14 +131,13 @@
       z-index: 1;
     }
 
-    /* ✅ Saudi Sigil Watermark — guaranteed visible */
     .chat-box::before {
       content: "";
       position: absolute;
       inset: 0;
       background: url('saudi_sigil.png') no-repeat center center;
       background-size: 45%;
-      opacity: 0.22; /* visible at 22% transparency */
+      opacity: 0.22;
       filter: grayscale(100%) contrast(1.1);
       pointer-events: none;
       z-index: 0;
@@ -179,27 +177,30 @@
       border-bottom-left-radius: 2px;
     }
 
+    /* ✅ Timestamp + Copy Button Aligned Side-by-Side */
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+
     .timestamp {
       font-size: 11px;
       opacity: 0.6;
-      text-align: right;
-      margin-top: 3px;
     }
 
     .copy-btn {
-      position: absolute;
-      bottom: 4px;
-      right: 8px;
-      font-size: 13px;
+      font-size: 12px;
       background: none;
       border: none;
       color: var(--primary);
-      opacity: 0;
       cursor: pointer;
-      transition: opacity 0.2s;
+      opacity: 0.8;
+      transition: color 0.2s ease;
     }
 
-    .bot:hover .copy-btn { opacity: 0.8; }
+    .copy-btn:hover { color: var(--accent); }
 
     form {
       display: flex;
@@ -248,16 +249,6 @@
       font-style: italic;
     }
 
-    .typing::after {
-      content: "⋯";
-      animation: blink 1s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 1; }
-    }
-
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
   </style>
@@ -297,7 +288,6 @@
     const clearBtn = document.getElementById("clear-chat");
     const BACKEND_URL = "https://saudi-labor-law-production.up.railway.app";
 
-    // Theme persistence
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       toggleBtn.textContent = "☀️";
@@ -310,7 +300,6 @@
       localStorage.setItem("theme", darkMode ? "dark" : "light");
     });
 
-    // Restore chat
     const savedChat = localStorage.getItem("chatHistory");
     if (savedChat) chatBox.innerHTML = savedChat;
 
@@ -320,13 +309,16 @@
 
       const content = document.createElement("div");
       content.textContent = text;
+      msg.appendChild(content);
+
+      const meta = document.createElement("div");
+      meta.classList.add("meta-row");
 
       const time = document.createElement("div");
       time.classList.add("timestamp");
       time.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
 
-      msg.appendChild(content);
-      msg.appendChild(time);
+      meta.appendChild(time);
 
       if (sender === "bot") {
         const copyBtn = document.createElement("button");
@@ -337,9 +329,10 @@
           copyBtn.textContent = "Copied!";
           setTimeout(() => (copyBtn.textContent = "Copy"), 2000);
         };
-        msg.appendChild(copyBtn);
+        meta.appendChild(copyBtn);
       }
 
+      msg.appendChild(meta);
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
       saveChat();
@@ -364,7 +357,7 @@
 
       const typing = document.createElement("div");
       typing.classList.add("message", "bot", "typing");
-      typing.textContent = "Thinking";
+      typing.textContent = "Thinking...";
       chatBox.appendChild(typing);
       chatBox.scrollTop = chatBox.scrollHeight;
 
