@@ -6,29 +6,32 @@
   <title>Saudi Labor Law Assistant</title>
   <style>
     :root {
-      --primary: #0d6efd;
-      --bg: #f8f9fa;
-      --bot: #e9ecef;
-      --text-dark: #212529;
-      --header-bg: var(--primary);
-      --header-text: white;
-      --slogan-color: rgba(136, 136, 136, 0.3);
+      --primary: #006c35;            /* Saudi green */
+      --bg: #fdfdfb;                 /* Warm white */
+      --bot: #f1f5f2;                /* Gentle sage background for assistant replies */
+      --text-dark: #1b1d1a;          /* Deep neutral for readable text */
+      --header-bg: #006c35;          /* Consistent Saudi green */
+      --header-text: #ffffff;
+      --slogan-color: rgba(0, 50, 25, 0.12); /* Subtle slogans */
+      --accent: #d4af37;             /* Gold accent */
     }
 
     body.dark {
-      --primary: #3391ff;
-      --bg: #1e1e1e;
-      --bot: #2b2b2b;
-      --text-dark: #f1f1f1;
-      --header-bg: #111;
-      --header-text: #f8f9fa;
+      --primary: #009b5a;            /* Bright emerald green for dark mode */
+      --bg: #121712;                 /* Deep green-black */
+      --bot: #1c211c;                /* Slightly lighter dark green */
+      --text-dark: #e8ede8;          /* Light neutral text */
+      --header-bg: #0a3f21;          /* Dark Saudi green */
+      --header-text: #f1f1f1;
       --slogan-color: rgba(255, 255, 255, 0.15);
+      --accent: #d4af37;             /* Gold stays consistent */
     }
 
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
+      font-family: "Segoe UI", system-ui, sans-serif;
       background: var(--bg);
+      color: var(--text-dark);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -70,10 +73,10 @@
       display: flex;
       flex-direction: column;
       background: var(--bg);
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       overflow: hidden;
-      border: 1px solid #ddd;
+      border: 1px solid #e3e7e2;
       position: relative;
       transition: background 0.3s ease, border-color 0.3s ease;
       z-index: 2;
@@ -165,7 +168,7 @@
       display: flex;
       align-items: flex-end;
       padding: 10px;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid #d9ded8;
       background: var(--bg);
       transition: background 0.3s ease;
     }
@@ -182,12 +185,13 @@
       max-height: 150px;
       overflow-y: auto;
       transition: border-color 0.2s, background 0.3s ease, color 0.3s ease;
-      background: var(--bg);
+      background: #ffffff;
       color: var(--text-dark);
     }
 
     textarea:focus {
       border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 108, 53, 0.25);
     }
 
     button {
@@ -199,15 +203,18 @@
       border-radius: 8px;
       cursor: pointer;
       font-weight: 500;
-      transition: 0.2s background;
+      transition: background 0.2s ease, transform 0.2s ease;
     }
 
-    button:hover { background: #0056b3; }
+    button:hover {
+      background: #00542a;
+      transform: translateY(-1px);
+    }
 
     .typing { opacity: 0.7; font-style: italic; font-size: 14px; }
 
     ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -242,7 +249,7 @@
     const chatBox = document.getElementById("chat-box");
     const toggleBtn = document.getElementById("toggle-theme");
 
-    // Change this to your backend deployment URL if different
+    // ✅ Update this to your actual backend endpoint if different
     const BACKEND_URL = "https://web-production-86a3c.up.railway.app";
 
     // Restore dark mode preference
