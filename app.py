@@ -17,12 +17,8 @@ PDF_PATH_EN = os.getenv("PDF_PATH_EN", "saudi_labor_law_english.pdf")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 MODEL = "gpt-4o-mini"
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
-    print("⚠️ Warning: Missing OPENAI_API_KEY. App will not function properly.")
-else:
-    client = OpenAI(api_key=OPENAI_API_KEY)
-
+    raise ValueError("❌ Missing OPENAI_API_KEY in environment variables.")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # === PDF Loader ===
@@ -30,14 +26,17 @@ def read_pdf_text(path):
     reader = PdfReader(path)
     text = ""
     for page in reader.pages:
-        text += page.extract_text() or ""
+        page_text = page.extract_text() or ""
+        # Normalize Arabic presentation forms and remove diacritics
+        page_text = re.sub(r"[\u064B-\u065F\u0670]", "", page_text)
+        text += page_text + "\n"
     return text
 
 def chunk_text(text, chunk_size=1200, overlap=200):
     chunks = []
     for i in range(0, len(text), chunk_size - overlap):
         chunk = text[i:i + chunk_size].strip()
-        if len(chunk) > 200:  # skip very small fragments
+        if len(chunk) > 200:
             chunks.append(chunk)
     return chunks
 
@@ -47,22 +46,21 @@ text_en = read_pdf_text(PDF_PATH_EN)
 
 chunks_ar = chunk_text(text_ar)
 chunks_en = chunk_text(text_en)
-
 print(f"✅ Loaded {len(chunks_ar)} Arabic chunks and {len(chunks_en)} English chunks.")
 
 # === Build TF-IDF Indexes ===
 vectorizer_ar = TfidfVectorizer(stop_words=None, ngram_range=(1, 2), min_df=2)
 vectorizer_en = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=2)
-
 tfidf_ar = vectorizer_ar.fit_transform(chunks_ar)
 tfidf_en = vectorizer_en.fit_transform(chunks_en)
-
 print("✅ Arabic and English TF-IDF indexes ready.")
 
 # === Language Detection ===
 def detect_language(text):
-    arabic_chars = re.findall(r"[\u0600-\u06FF]", text)
-    return "ar" if len(arabic_chars) / max(len(text), 1) > 0.2 else "en"
+    arabic_ratio = len(re.findall(r"[\u0600-\u06FF]", text)) / max(len(text), 1)
+    if 0.2 < arabic_ratio < 0.8:
+        return "mixed"
+    return "ar" if arabic_ratio >= 0.8 else "en"
 
 # === Context Retrieval ===
 def retrieve_context(question, lang="en", top_k=5):
@@ -71,6 +69,14 @@ def retrieve_context(question, lang="en", top_k=5):
         sims = cosine_similarity(tfidf_ar, vec).ravel()
         idx = np.argsort(-sims)[:top_k]
         return "\n\n".join(chunks_ar[i] for i in idx)
+    elif lang == "mixed":
+        vec_ar = vectorizer_ar.transform([question])
+        vec_en = vectorizer_en.transform([question])
+        sims_ar = cosine_similarity(tfidf_ar, vec_ar).ravel()
+        sims_en = cosine_similarity(tfidf_en, vec_en).ravel()
+        idx_ar = np.argsort(-sims_ar)[:top_k // 2]
+        idx_en = np.argsort(-sims_en)[:top_k // 2]
+        return "\n\n".join(chunks_ar[i] for i in idx_ar) + "\n\n" + "\n\n".join(chunks_en[i] for i in idx_en)
     else:
         vec = vectorizer_en.transform([question])
         sims = cosine_similarity(tfidf_en, vec).ravel()
@@ -87,34 +93,31 @@ def ask():
 
     lang = detect_language(q)
     context = retrieve_context(q, lang)
+    if not context.strip():
+        context = "No relevant articles found in the Saudi Labor Law documents."
 
-    if lang == "ar":
-        system_prompt = (
-            "أنت مساعد قانوني متخصص في نظام العمل السعودي. "
-            "تستند إجاباتك إلى نظام العمل السعودي بنسختيه العربية والإنجليزية، "
-            "وتلتزم بالصياغة الرسمية والواضحة باللغة العربية الفصحى. "
-            "عند الاقتضاء، أشر إلى المادة ذات الصلة مثل (المادة ٨٠). "
-            "أجب بإيجاز ووضوح دون استخدام زخارف أو رموز أو تنسيق خاص."
-        )
-    else:
-        system_prompt = (
-            "You are a legal assistant specializing in the Saudi Labor Law. "
-            "Base your answers on both the Arabic and English versions of the law. "
-            "When applicable, refer to the relevant article (e.g., Article 80). "
-            "Respond in clear, professional English prose with no markdown, symbols, or formatting."
-        )
+    # === Strong grounding prompt ===
+    system_prompt = (
+        "You are the Saudi Labor Law Assistant. "
+        "You must ONLY answer questions using the information provided in the CONTEXT below. "
+        "If the answer is not explicitly found in the context, reply with: "
+        "'I could not find a specific reference in the Saudi Labor Law for that question.' "
+        "Do not rely on external knowledge, ISO standards, or unrelated material. "
+        "Base all reasoning solely on the Saudi Labor Law (Arabic and English). "
+        "Answer in the same language as the question (Arabic if Arabic, English if English)."
+    )
 
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Question: {q}\n\nRelevant Text:\n{context}"}
+        {"role": "user", "content": f"Question:\n{q}\n\n---\nCONTEXT:\n{context}\n---"}
     ]
 
     try:
         response = client.chat.completions.create(
             model=MODEL,
             messages=messages,
-            temperature=0.3,
-            max_tokens=500
+            temperature=0.2,
+            max_tokens=600
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
