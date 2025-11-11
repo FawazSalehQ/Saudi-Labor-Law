@@ -4,27 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saudi Labor Law Assistant</title>
+
+  <!-- 🇸🇦 Favicon -->
+  <link rel="icon" type="image/png" href="saudi_sigil.png" />
+
   <style>
     :root {
       --primary: #006c35;            /* Saudi green */
       --bg: #fdfdfb;                 /* Warm white */
-      --bot: #f1f5f2;                /* Gentle sage background for assistant replies */
-      --text-dark: #1b1d1a;          /* Deep neutral for readable text */
+      --bot: #f1f5f2;                /* Gentle sage for bot replies */
+      --text-dark: #1b1d1a;          /* Deep neutral text */
       --header-bg: #006c35;          /* Consistent Saudi green */
       --header-text: #ffffff;
-      --slogan-color: rgba(0, 50, 25, 0.12); /* Subtle slogans */
+      --slogan-color: rgba(0, 50, 25, 0.12);
       --accent: #d4af37;             /* Gold accent */
     }
 
     body.dark {
-      --primary: #009b5a;            /* Bright emerald green for dark mode */
+      --primary: #009b5a;            /* Emerald green for dark mode */
       --bg: #121712;                 /* Deep green-black */
-      --bot: #1c211c;                /* Slightly lighter dark green */
-      --text-dark: #e8ede8;          /* Light neutral text */
-      --header-bg: #0a3f21;          /* Dark Saudi green */
+      --bot: #1c211c;
+      --text-dark: #e8ede8;
+      --header-bg: #0a3f21;
       --header-text: #f1f1f1;
       --slogan-color: rgba(255, 255, 255, 0.15);
-      --accent: #d4af37;             /* Gold stays consistent */
+      --accent: #d4af37;
     }
 
     body {
@@ -137,7 +141,35 @@
       padding: 16px;
       overflow-y: auto;
       background: var(--bg);
+      position: relative;
       transition: background 0.3s ease;
+    }
+
+    /* === Saudi Sigil Watermark === */
+    .chat-box::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 60%;
+      background: url('saudi_sigil.png') no-repeat center center;
+      background-size: contain;
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+      filter: grayscale(100%);
+    }
+
+    body.dark .chat-box::before {
+      opacity: 0.1;
+      filter: brightness(0.7);
+    }
+
+    .message, form {
+      position: relative;
+      z-index: 1;
     }
 
     .message {
@@ -249,7 +281,7 @@
     const chatBox = document.getElementById("chat-box");
     const toggleBtn = document.getElementById("toggle-theme");
 
-    // ✅ Update this to your actual backend endpoint if different
+    // ✅ Backend API URL
     const BACKEND_URL = "https://web-production-86a3c.up.railway.app";
 
     // Restore dark mode preference
