@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saudi Labor Law Assistant</title>
+
+  <!-- 🇸🇦 Favicon -->
   <link rel="icon" type="image/png" href="saudi_sigil.png" />
+  <link rel="apple-touch-icon" href="saudi_sigil.png">
+  <link rel="shortcut icon" type="image/png" href="saudi_sigil.png">
 
   <style>
     :root {
@@ -111,11 +115,11 @@
 
     .toggle-btn:hover, .clear-btn:hover { transform: scale(1.2); }
 
-    /* 🔹 Add spacing between icons */
+    /* 🔹 Spacing between icons */
     .icon-group {
       display: flex;
       align-items: center;
-      gap: 16px; /* increased gap to prevent misclicks */
+      gap: 16px;
     }
 
     .chat-box {
@@ -126,6 +130,7 @@
       background: var(--bg);
     }
 
+    /* ✅ Saudi Sigil Watermark */
     .chat-box::before {
       content: "";
       position: absolute;
@@ -136,14 +141,14 @@
       height: 60%;
       background: url('saudi_sigil.png') no-repeat center center;
       background-size: contain;
-      opacity: 0.18;
+      opacity: 0.2; /* 20% visibility */
       filter: grayscale(100%);
       pointer-events: none;
     }
 
     body.dark .chat-box::before {
-      opacity: 0.08;
-      filter: brightness(0.6);
+      opacity: 0.1;
+      filter: brightness(0.7);
     }
 
     .message {
