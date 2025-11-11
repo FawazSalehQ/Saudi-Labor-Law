@@ -94,7 +94,9 @@
     .chat-header .actions {
       display: flex;
       align-items: center;
-      gap: 14px; /* Increased spacing to prevent misclicks */
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .chat-header a {
@@ -104,6 +106,22 @@
     }
 
     .chat-header a:hover { text-decoration: underline; }
+
+    .download-btn {
+      background: var(--accent);
+      color: var(--header-bg);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .download-btn:hover {
+      background: #c7a330;
+      transform: translateY(-1px);
+    }
 
     .toggle-btn, .clear-btn {
       background: transparent;
@@ -272,6 +290,8 @@
       <span class="title">Saudi Labor Law Assistant</span>
       <div class="actions">
         <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
+        <a href="saudi_labor_law_english.pdf" download class="download-btn" title="Download English PDF">📘 English</a>
+        <a href="saudi_labor_law_arabic.pdf" download class="download-btn" title="تحميل النظام بالعربية">📗 العربية</a>
         <button id="clear-chat" class="clear-btn" title="Clear chat">🗑️</button>
         <button id="toggle-theme" class="toggle-btn" title="Toggle theme">🌙</button>
       </div>
