@@ -128,27 +128,26 @@
       overflow-y: auto;
       position: relative;
       background: var(--bg);
+      transition: background 0.3s ease;
+      z-index: 1;
     }
 
-    /* ✅ Saudi Sigil Watermark */
+    /* ✅ Saudi Sigil Watermark — guaranteed visible */
     .chat-box::before {
       content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60%;
-      height: 60%;
+      inset: 0;
       background: url('saudi_sigil.png') no-repeat center center;
-      background-size: contain;
-      opacity: 0.2; /* 20% visibility */
-      filter: grayscale(100%);
+      background-size: 45%;
+      opacity: 0.22; /* visible at 22% transparency */
+      filter: grayscale(100%) contrast(1.1);
       pointer-events: none;
+      z-index: 0;
     }
 
     body.dark .chat-box::before {
-      opacity: 0.1;
-      filter: brightness(0.7);
+      opacity: 0.16;
+      filter: brightness(0.8);
     }
 
     .message {
