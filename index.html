@@ -6,7 +6,7 @@
   <title>Saudi Labor Law Assistant</title>
 
   <!-- 🇸🇦 Favicon -->
-  <link rel="icon" type="image/png" href="saudi_sigil.png" />
+  <link rel="icon" type="image/png" href="/saudi_sigil.png" />
 
   <style>
     :root {
@@ -40,6 +40,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      position: relative;
       overflow: hidden;
       transition: background 0.3s ease, color 0.3s ease;
     }
@@ -58,8 +59,14 @@
       transition: color 0.3s ease;
     }
 
-    .slogan.left { left: 40px; transform: translateY(-50%) rotate(180deg); }
-    .slogan.right { right: 40px; }
+    .slogan.left {
+      left: 40px;
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .slogan.right {
+      right: 40px;
+    }
 
     .chat-container {
       width: 100%;
@@ -89,14 +96,16 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .chat-header .title { font-weight: 600; }
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
 
-    .chat-header .actions {
+    .chat-header .author-links {
       display: flex;
       align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 10px;
     }
 
     .chat-header a {
@@ -105,22 +114,31 @@
       font-size: 14px;
     }
 
-    .chat-header a:hover { text-decoration: underline; }
+    .chat-header a:hover {
+      text-decoration: underline;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
     .download-btn {
       background: var(--accent);
-      color: var(--header-bg);
-      padding: 4px 10px;
+      color: #fff;
+      border: none;
       border-radius: 6px;
+      padding: 6px 12px;
       font-size: 13px;
+      cursor: pointer;
       font-weight: 500;
       text-decoration: none;
-      transition: background 0.2s ease, transform 0.2s ease;
+      transition: background 0.2s;
     }
 
     .download-btn:hover {
-      background: #c7a330;
-      transform: translateY(-1px);
+      background: #b9962c;
     }
 
     .toggle-btn, .clear-btn {
@@ -132,7 +150,9 @@
       transition: transform 0.2s;
     }
 
-    .toggle-btn:hover, .clear-btn:hover { transform: scale(1.2); }
+    .toggle-btn:hover, .clear-btn:hover {
+      transform: scale(1.2);
+    }
 
     .chat-box {
       flex: 1;
@@ -151,7 +171,7 @@
       transform: translate(-50%, -50%);
       width: 60%;
       height: 60%;
-      background: url('saudi_sigil.png') no-repeat center center;
+      background: url('/saudi_sigil.png') no-repeat center center;
       background-size: contain;
       opacity: 0.2;
       pointer-events: none;
@@ -164,14 +184,17 @@
       filter: brightness(0.7);
     }
 
-    .message, form { position: relative; z-index: 1; }
+    .message, form {
+      position: relative;
+      z-index: 1;
+    }
 
     .message {
       margin: 8px 0;
       padding: 10px 14px;
       border-radius: 10px;
       max-width: 80%;
-      line-height: 1.5;
+      line-height: 1.4;
       word-wrap: break-word;
       transition: background 0.3s ease, color 0.3s ease;
     }
@@ -188,40 +211,6 @@
       color: var(--text-dark);
       margin-right: auto;
       border-bottom-left-radius: 2px;
-    }
-
-    .bot h3, .bot h4 {
-      margin: 8px 0 4px;
-      font-size: 15px;
-      color: var(--primary);
-    }
-
-    .bot ul {
-      margin: 4px 0 4px 18px;
-      padding-left: 10px;
-    }
-
-    .bot li {
-      margin-bottom: 4px;
-      line-height: 1.5;
-    }
-
-    .message-footer {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-      font-size: 11px;
-      opacity: 0.7;
-    }
-
-    .copy-btn {
-      cursor: pointer;
-      border: none;
-      background: none;
-      color: var(--primary);
-      font-size: 12px;
     }
 
     form {
@@ -244,15 +233,15 @@
       min-height: 40px;
       max-height: 150px;
       overflow-y: auto;
+      transition: border-color 0.2s, background 0.3s ease, color 0.3s ease;
       background: #ffffff;
       color: var(--text-dark);
-      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     body.dark textarea {
-      background: #1c211c;
-      color: #f1f1f1;
-      border-color: #333;
+      background: #222a22;
+      border-color: #444;
+      color: #e8ede8;
     }
 
     textarea:focus {
@@ -277,6 +266,8 @@
       transform: translateY(-1px);
     }
 
+    .typing { opacity: 0.7; font-style: italic; font-size: 14px; }
+
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
   </style>
@@ -287,11 +278,16 @@
 
   <div class="chat-container">
     <div class="chat-header">
-      <span class="title">Saudi Labor Law Assistant</span>
-      <div class="actions">
-        <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
-        <a href="saudi_labor_law_english.pdf" download class="download-btn" title="Download English PDF">📘 English</a>
-        <a href="saudi_labor_law_arabic.pdf" download class="download-btn" title="تحميل النظام بالعربية">📗 العربية</a>
+      <div class="header-left">
+        <span>Saudi Labor Law Assistant</span>
+        <div class="author-links">
+          <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a href="/saudi_labor_law_english.pdf" download class="download-btn">📘 English</a>
+        <a href="/saudi_labor_law_arabic.pdf" download class="download-btn">📗 العربية</a>
         <button id="clear-chat" class="clear-btn" title="Clear chat">🗑️</button>
         <button id="toggle-theme" class="toggle-btn" title="Toggle theme">🌙</button>
       </div>
@@ -307,8 +303,6 @@
     </form>
   </div>
 
-  <!-- ✅ Markdown rendering support -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     const form = document.getElementById("chat-form");
     const input = document.getElementById("user-input");
@@ -318,7 +312,6 @@
 
     const BACKEND_URL = "https://saudi-labor-law-production.up.railway.app";
 
-    // Restore dark mode
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark");
       toggleBtn.textContent = "☀️";
@@ -332,30 +325,13 @@
     });
 
     clearBtn.addEventListener("click", () => {
-      chatBox.innerHTML = '<div class="message bot">👋 Chat cleared. Ask me about the Saudi Labor Law (نظام العمل السعودي).</div>';
+      chatBox.innerHTML = '<div class="message bot">🧾 Chat cleared. You can ask a new question.</div>';
     });
 
     function appendMessage(text, sender) {
       const msg = document.createElement("div");
       msg.classList.add("message", sender);
-
-      const content = document.createElement("div");
-      content.innerHTML = marked.parse(text);
-      msg.appendChild(content);
-
-      if (sender === "bot") {
-        const footer = document.createElement("div");
-        footer.classList.add("message-footer");
-        const copyBtn = document.createElement("button");
-        copyBtn.classList.add("copy-btn");
-        copyBtn.textContent = "Copy";
-        copyBtn.onclick = () => navigator.clipboard.writeText(text);
-        const timestamp = document.createElement("span");
-        timestamp.textContent = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-        footer.append(copyBtn, timestamp);
-        msg.appendChild(footer);
-      }
-
+      msg.textContent = text;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -369,7 +345,7 @@
       input.value = "";
 
       const typing = document.createElement("div");
-      typing.classList.add("message", "bot");
+      typing.classList.add("message", "bot", "typing");
       typing.textContent = "Thinking...";
       chatBox.appendChild(typing);
       chatBox.scrollTop = chatBox.scrollHeight;
