@@ -223,13 +223,6 @@
       animation: fadeUp 0.5s ease both;
     }
 
-    .welcome img {
-      width: 76px;
-      height: 76px;
-      object-fit: contain;
-      margin-bottom: 18px;
-    }
-
     .welcome h1 {
       font-size: 24px;
       font-weight: 700;
@@ -620,10 +613,6 @@
       welcome.className = "welcome";
       welcome.id = "welcome";
 
-      const img = document.createElement("img");
-      img.src = "saudi_sigil.png";
-      img.alt = "";
-
       const h1 = document.createElement("h1");
       h1.textContent = "Saudi Labor Law Assistant";
 
@@ -650,7 +639,7 @@
         grid.appendChild(btn);
       });
 
-      welcome.append(img, h1, arTitle, p, grid);
+      welcome.append(h1, arTitle, p, grid);
       conversation.appendChild(welcome);
     }
 
