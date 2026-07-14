@@ -2,357 +2,742 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Saudi Labor Law Assistant | By Fawaz Aljathnan</title>
+  <meta name="description" content="Bilingual AI assistant for the Saudi Labor Law — نظام العمل السعودي" />
 
   <!-- 🇸🇦 Favicon -->
   <link rel="icon" type="image/png" href="saudi_sigil.png" />
 
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Apply saved/system theme before first paint to avoid flash -->
+  <script>
+    (function () {
+      const saved = localStorage.getItem("theme");
+      const dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (dark) document.documentElement.classList.add("dark");
+    })();
+  </script>
+
   <style>
     :root {
-      --primary: #006c35;
-      --bg: #fdfdfb;
-      --bot: #f1f5f2;
-      --text-dark: #1b1d1a;
-      --header-bg: #006c35;
-      --header-text: #ffffff;
-      --slogan-color: rgba(0, 50, 25, 0.12);
-      --accent: #d4af37;
+      --green: #006c35;
+      --green-strong: #00542a;
+      --green-soft: #e6f2ec;
+      --gold: #c9a227;
+
+      --bg: #f4f6f4;
+      --surface: #ffffff;
+      --surface-2: #eef1ee;
+      --border: #dde3dd;
+      --text: #1a201c;
+      --text-muted: #66716a;
+      --user-bubble: #006c35;
+      --user-text: #ffffff;
+      --error-bg: #fdf0ef;
+      --error-border: #eacfcc;
+      --error-text: #9c3a30;
+      --shadow: 0 1px 2px rgba(15, 30, 20, 0.05), 0 8px 24px rgba(15, 30, 20, 0.06);
+      --ring: rgba(0, 108, 53, 0.28);
     }
 
-    body.dark {
-      --primary: #009b5a;
-      --bg: #121712;
-      --bot: #1c211c;
-      --text-dark: #e8ede8;
-      --header-bg: #0a3f21;
-      --header-text: #f1f1f1;
-      --slogan-color: rgba(255, 255, 255, 0.15);
-      --accent: #d4af37;
+    html.dark {
+      --green: #34b678;
+      --green-strong: #4ccb8d;
+      --green-soft: #12281c;
+      --gold: #d4b24a;
+
+      --bg: #0e1310;
+      --surface: #161c18;
+      --surface-2: #1e2620;
+      --border: #29332c;
+      --text: #e7ece8;
+      --text-muted: #93a098;
+      --user-bubble: #0d5c34;
+      --user-text: #f2f7f3;
+      --error-bg: #2a1a18;
+      --error-border: #4a2c28;
+      --error-text: #e08a7f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.35);
+      --ring: rgba(52, 182, 120, 0.35);
     }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
 
     body {
       margin: 0;
-      font-family: "Segoe UI", system-ui, sans-serif;
+      font-family: "Inter", "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
       background: var(--bg);
-      color: var(--text-dark);
+      color: var(--text);
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      flex-direction: column;
+      height: 100dvh;
       overflow: hidden;
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .slogan {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--slogan-color);
-      pointer-events: none;
-      user-select: none;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transition: color 0.3s ease;
+    :lang(ar), [dir="rtl"] {
+      font-family: "IBM Plex Sans Arabic", "Inter", system-ui, sans-serif;
     }
 
-    .slogan.left { left: 40px; transform: translateY(-50%) rotate(180deg); }
-    .slogan.right { right: 40px; }
-
-    .chat-container {
-      width: 100%;
-      max-width: 600px;
-      height: 80vh;
+    /* ===== Header ===== */
+    .app-header {
+      flex-shrink: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 64px;
       display: flex;
-      flex-direction: column;
-      background: var(--bg);
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      overflow: hidden;
-      border: 1px solid #e3e7e2;
-      position: relative;
-      z-index: 2;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    .chat-header {
-      background: var(--header-bg);
-      color: var(--header-text);
-      padding: 12px 18px;
-      font-size: 18px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .chat-header .title { font-weight: 600; }
-
-    .chat-header .actions {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 14px; /* Increased spacing to prevent misclicks */
+      gap: 12px;
+      min-width: 0;
     }
 
-    .chat-header a {
-      color: var(--header-text);
+    .brand img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .brand .titles { min-width: 0; }
+
+    .brand .title {
+      font-size: 15.5px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand .subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .linkedin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 550;
+      color: var(--text-muted);
       text-decoration: none;
-      font-size: 14px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      transition: color 0.15s ease, background 0.15s ease;
     }
 
-    .chat-header a:hover { text-decoration: underline; }
+    .linkedin-link:hover {
+      color: var(--green);
+      background: var(--green-soft);
+    }
 
-    .toggle-btn, .clear-btn {
-      background: transparent;
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border: none;
-      color: var(--header-text);
-      font-size: 18px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: color 0.15s ease, background 0.15s ease;
     }
 
-    .toggle-btn:hover, .clear-btn:hover { transform: scale(1.2); }
+    .icon-btn:hover {
+      color: var(--green);
+      background: var(--green-soft);
+    }
 
-    .chat-box {
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    html:not(.dark) .icon-sun { display: none; }
+    html.dark .icon-moon { display: none; }
+
+    /* ===== Chat area ===== */
+    .chat-scroll {
       flex: 1;
-      padding: 16px;
       overflow-y: auto;
-      background: var(--bg);
       position: relative;
-      transition: background 0.3s ease;
+      scroll-behavior: smooth;
     }
 
-    .chat-box::before {
-      content: "";
-      position: absolute;
+    .watermark {
+      position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60%;
-      height: 60%;
-      background: url('saudi_sigil.png') no-repeat center center;
-      background-size: contain;
-      opacity: 0.2;
+      width: min(420px, 70vw);
+      height: min(420px, 70vw);
+      background: url("saudi_sigil.png") no-repeat center / contain;
+      opacity: 0.05;
+      filter: grayscale(100%);
       pointer-events: none;
       z-index: 0;
-      filter: grayscale(100%);
     }
 
-    body.dark .chat-box::before {
-      opacity: 0.1;
-      filter: brightness(0.7);
-    }
+    html.dark .watermark { opacity: 0.04; filter: grayscale(100%) invert(1); }
 
-    .message, form { position: relative; z-index: 1; }
-
-    .message {
-      margin: 8px 0;
-      padding: 10px 14px;
-      border-radius: 10px;
-      max-width: 80%;
-      line-height: 1.5;
-      word-wrap: break-word;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .user {
-      background: var(--primary);
-      color: white;
-      margin-left: auto;
-      border-bottom-right-radius: 2px;
-    }
-
-    .bot {
-      background: var(--bot);
-      color: var(--text-dark);
-      margin-right: auto;
-      border-bottom-left-radius: 2px;
-    }
-
-    .bot h3, .bot h4 {
-      margin: 8px 0 4px;
-      font-size: 15px;
-      color: var(--primary);
-    }
-
-    .bot ul {
-      margin: 4px 0 4px 18px;
-      padding-left: 10px;
-    }
-
-    .bot li {
-      margin-bottom: 4px;
-      line-height: 1.5;
-    }
-
-    .message-footer {
+    .conversation {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 20px 16px;
       display: flex;
-      justify-content: flex-end;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* ===== Welcome / empty state ===== */
+    .welcome {
+      text-align: center;
+      padding: 8vh 12px 20px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .welcome img {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      margin-bottom: 18px;
+    }
+
+    .welcome h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+    }
+
+    .welcome .ar-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--green);
+      margin: 0 0 10px;
+    }
+
+    .welcome p {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .suggestion {
+      text-align: start;
+      padding: 13px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .suggestion:hover {
+      border-color: var(--green);
+      background: var(--green-soft);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== Messages ===== */
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .message.user { align-self: flex-end; align-items: flex-end; }
+    .message.bot { align-self: flex-start; align-items: flex-start; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14.5px;
+      line-height: 1.65;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .user .bubble {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      border-bottom-right-radius: 5px;
+      white-space: pre-wrap;
+    }
+
+    .bot .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 5px;
+      box-shadow: var(--shadow);
+    }
+
+    .bot .bubble.error {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    /* Markdown content inside bot bubbles */
+    .bubble > :first-child { margin-top: 0; }
+    .bubble > :last-child { margin-bottom: 0; }
+
+    .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
+      font-size: 14.5px;
+      font-weight: 650;
+      color: var(--green);
+      margin: 14px 0 6px;
+    }
+
+    .bubble p { margin: 8px 0; }
+
+    .bubble ul, .bubble ol {
+      margin: 8px 0;
+      padding-inline-start: 22px;
+    }
+
+    .bubble li { margin: 4px 0; }
+
+    .bubble strong { font-weight: 650; }
+
+    .bubble a { color: var(--green); }
+
+    .bubble code {
+      background: var(--surface-2);
+      border-radius: 5px;
+      padding: 1.5px 6px;
+      font-size: 13px;
+    }
+
+    .bubble blockquote {
+      margin: 8px 0;
+      padding: 4px 14px;
+      border-inline-start: 3px solid var(--green);
+      background: var(--surface-2);
+      border-radius: 6px;
+      color: var(--text-muted);
+    }
+
+    .bubble table {
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13.5px;
+      display: block;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .bubble th, .bubble td {
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      text-align: start;
+    }
+
+    .bubble th { background: var(--surface-2); font-weight: 600; }
+
+    .message-meta {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-      font-size: 11px;
-      opacity: 0.7;
+      gap: 10px;
+      margin-top: 5px;
+      padding: 0 6px;
+      font-size: 11.5px;
+      color: var(--text-muted);
     }
 
     .copy-btn {
-      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       border: none;
       background: none;
-      color: var(--primary);
-      font-size: 12px;
+      padding: 2px 4px;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 550;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 5px;
+      transition: color 0.15s ease;
     }
 
-    form {
+    .copy-btn:hover { color: var(--green); }
+    .copy-btn svg { width: 12px; height: 12px; }
+    .copy-btn.copied { color: var(--green); }
+
+    /* Typing indicator */
+    .typing-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 2px;
+    }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Composer ===== */
+    .composer-wrap {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+      padding: 8px 20px calc(14px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, var(--bg) 65%, transparent);
+    }
+
+    .composer {
+      max-width: 760px;
+      margin: 0 auto;
       display: flex;
       align-items: flex-end;
-      padding: 10px;
-      border-top: 1px solid #d9ded8;
-      background: var(--bg);
-      transition: background 0.3s ease;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 8px 8px 8px 16px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    textarea {
+    .composer:focus-within {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .composer textarea {
       flex: 1;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
+      border: none;
       outline: none;
       resize: none;
-      min-height: 40px;
-      max-height: 150px;
-      overflow-y: auto;
-      background: #ffffff;
-      color: var(--text-dark);
-      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14.5px;
+      line-height: 1.55;
+      padding: 8px 0;
+      max-height: 160px;
     }
 
-    body.dark textarea {
-      background: #1c211c;
-      color: #f1f1f1;
-      border-color: #333;
-    }
+    .composer textarea::placeholder { color: var(--text-muted); }
 
-    textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(0, 108, 53, 0.25);
-    }
-
-    button {
-      margin-left: 8px;
-      padding: 0 18px;
-      background: var(--primary);
-      color: white;
+    .send-btn {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
       border: none;
-      border-radius: 8px;
+      border-radius: 11px;
+      background: var(--green);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s ease, transform 0.2s ease;
+      transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
     }
 
-    button:hover {
-      background: #00542a;
+    html.dark .send-btn { color: #0e1310; }
+
+    .send-btn:hover:not(:disabled) {
+      background: var(--green-strong);
       transform: translateY(-1px);
     }
 
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
+    .send-btn:disabled { opacity: 0.45; cursor: default; }
+
+    .send-btn svg { width: 17px; height: 17px; }
+
+    .disclaimer {
+      max-width: 760px;
+      margin: 9px auto 0;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* ===== Scrollbar ===== */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 6px;
+      border: 2px solid var(--bg);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 640px) {
+      .app-header { padding: 0 14px; height: 58px; }
+      .brand .subtitle { display: none; }
+      .linkedin-link span { display: none; }
+      .linkedin-link { padding: 7px 9px; }
+      .conversation { padding: 20px 14px 12px; }
+      .message { max-width: 92%; }
+      .suggestions { grid-template-columns: 1fr; }
+      .welcome { padding-top: 4vh; }
+      .composer-wrap { padding-left: 12px; padding-right: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="slogan left">Know your rights — Saudi Labor Law</div>
-  <div class="slogan right">اعرف حقوقك — نظام العمل السعودي</div>
 
-  <div class="chat-container">
-    <div class="chat-header">
-      <span class="title">Saudi Labor Law Assistant</span>
-      <div class="actions">
-        <a href="https://www.linkedin.com/in/fawazsalehq" target="_blank">LinkedIn</a>
-        <button id="clear-chat" class="clear-btn" title="Clear chat">🗑️</button>
-        <button id="toggle-theme" class="toggle-btn" title="Toggle theme">🌙</button>
+  <header class="app-header">
+    <div class="brand">
+      <img src="saudi_sigil.png" alt="" />
+      <div class="titles">
+        <div class="title">Saudi Labor Law Assistant</div>
+        <div class="subtitle">نظام العمل السعودي · Bilingual legal guidance</div>
       </div>
     </div>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">👋 Welcome! Ask me anything about the Saudi Labor Law (نظام العمل السعودي).</div>
+    <div class="header-actions">
+      <a class="linkedin-link" href="https://www.linkedin.com/in/fawazsalehq" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+        <span>LinkedIn</span>
+      </a>
+      <button id="clear-chat" class="icon-btn" title="Clear chat" aria-label="Clear chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </button>
+      <button id="toggle-theme" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
     </div>
+  </header>
 
-    <form id="chat-form">
-      <textarea id="user-input" placeholder="Type your question here (اكتب سؤالك هنا)..." rows="1"></textarea>
-      <button type="submit">Send</button>
+  <main class="chat-scroll" id="chat-scroll">
+    <div class="watermark" aria-hidden="true"></div>
+    <div class="conversation" id="conversation"></div>
+  </main>
+
+  <div class="composer-wrap">
+    <form class="composer" id="chat-form">
+      <textarea id="user-input" placeholder="Ask about the Saudi Labor Law… (اكتب سؤالك هنا)" rows="1" dir="auto" autocomplete="off"></textarea>
+      <button type="submit" class="send-btn" id="send-btn" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
     </form>
+    <p class="disclaimer">For general guidance only — not legal advice · للإرشاد العام فقط وليس استشارة قانونية</p>
   </div>
 
-  <!-- ✅ Markdown rendering support -->
+  <!-- Markdown rendering + sanitization -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
     const form = document.getElementById("chat-form");
     const input = document.getElementById("user-input");
-    const chatBox = document.getElementById("chat-box");
+    const sendBtn = document.getElementById("send-btn");
+    const chatScroll = document.getElementById("chat-scroll");
+    const conversation = document.getElementById("conversation");
     const toggleBtn = document.getElementById("toggle-theme");
     const clearBtn = document.getElementById("clear-chat");
 
     const BACKEND_URL = "https://saudi-labor-law-production.up.railway.app";
 
-    // Restore dark mode
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark");
-      toggleBtn.textContent = "☀️";
+    const SUGGESTIONS = [
+      "How is the end-of-service benefit calculated?",
+      "ما هي مدة الإجازة السنوية التي يستحقها العامل؟",
+      "What are the rules for the probation period?",
+      "ما هي حقوق العامل عند إنهاء عقد العمل؟"
+    ];
+
+    // ===== Theme =====
+    toggleBtn.addEventListener("click", () => {
+      const dark = document.documentElement.classList.toggle("dark");
+      localStorage.setItem("theme", dark ? "dark" : "light");
+    });
+
+    // ===== Welcome state =====
+    function showWelcome() {
+      conversation.innerHTML = "";
+      const welcome = document.createElement("div");
+      welcome.className = "welcome";
+      welcome.id = "welcome";
+
+      const img = document.createElement("img");
+      img.src = "saudi_sigil.png";
+      img.alt = "";
+
+      const h1 = document.createElement("h1");
+      h1.textContent = "Saudi Labor Law Assistant";
+
+      const arTitle = document.createElement("div");
+      arTitle.className = "ar-title";
+      arTitle.lang = "ar";
+      arTitle.textContent = "مساعد نظام العمل السعودي";
+
+      const p = document.createElement("p");
+      p.textContent = "Ask anything about the Saudi Labor Law in English or Arabic — answers are grounded in the official text of the law, with article references where applicable.";
+
+      const grid = document.createElement("div");
+      grid.className = "suggestions";
+      SUGGESTIONS.forEach((text) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "suggestion";
+        btn.dir = "auto";
+        btn.textContent = text;
+        btn.addEventListener("click", () => {
+          input.value = text;
+          form.requestSubmit();
+        });
+        grid.appendChild(btn);
+      });
+
+      welcome.append(img, h1, arTitle, p, grid);
+      conversation.appendChild(welcome);
     }
 
-    toggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      const darkMode = document.body.classList.contains("dark");
-      toggleBtn.textContent = darkMode ? "☀️" : "🌙";
-      localStorage.setItem("theme", darkMode ? "dark" : "light");
-    });
+    function removeWelcome() {
+      const welcome = document.getElementById("welcome");
+      if (welcome) welcome.remove();
+    }
 
-    clearBtn.addEventListener("click", () => {
-      chatBox.innerHTML = '<div class="message bot">👋 Chat cleared. Ask me about the Saudi Labor Law (نظام العمل السعودي).</div>';
-    });
+    // ===== Messages =====
+    function timeNow() {
+      return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
 
-    function appendMessage(text, sender) {
+    function scrollToBottom() {
+      chatScroll.scrollTop = chatScroll.scrollHeight;
+    }
+
+    function appendMessage(text, sender, { error = false } = {}) {
+      removeWelcome();
+
       const msg = document.createElement("div");
       msg.classList.add("message", sender);
 
-      const content = document.createElement("div");
-      content.innerHTML = marked.parse(text);
-      msg.appendChild(content);
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.dir = "auto";
+      if (error) bubble.classList.add("error");
 
-      if (sender === "bot") {
-        const footer = document.createElement("div");
-        footer.classList.add("message-footer");
+      if (sender === "bot" && !error) {
+        bubble.innerHTML = DOMPurify.sanitize(marked.parse(text));
+      } else {
+        bubble.textContent = text;
+      }
+      msg.appendChild(bubble);
+
+      const meta = document.createElement("div");
+      meta.classList.add("message-meta");
+
+      if (sender === "bot" && !error) {
         const copyBtn = document.createElement("button");
-        copyBtn.classList.add("copy-btn");
-        copyBtn.textContent = "Copy";
-        copyBtn.onclick = () => navigator.clipboard.writeText(text);
-        const timestamp = document.createElement("span");
-        timestamp.textContent = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-        footer.append(copyBtn, timestamp);
-        msg.appendChild(footer);
+        copyBtn.className = "copy-btn";
+        copyBtn.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>';
+        copyBtn.addEventListener("click", () => {
+          navigator.clipboard.writeText(text).then(() => {
+            copyBtn.classList.add("copied");
+            copyBtn.querySelector("span").textContent = "Copied ✓";
+            setTimeout(() => {
+              copyBtn.classList.remove("copied");
+              copyBtn.querySelector("span").textContent = "Copy";
+            }, 1600);
+          });
+        });
+        meta.appendChild(copyBtn);
       }
 
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      const timestamp = document.createElement("span");
+      timestamp.textContent = timeNow();
+      meta.appendChild(timestamp);
+      msg.appendChild(meta);
+
+      conversation.appendChild(msg);
+      scrollToBottom();
+      return msg;
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const question = input.value.trim();
-      if (!question) return;
+    function appendTyping() {
+      const msg = document.createElement("div");
+      msg.classList.add("message", "bot");
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.innerHTML = '<div class="typing-dots" aria-label="Assistant is typing"><span></span><span></span><span></span></div>';
+      msg.appendChild(bubble);
+      conversation.appendChild(msg);
+      scrollToBottom();
+      return msg;
+    }
+
+    // ===== Send flow =====
+    let pending = false;
+
+    async function sendQuestion(question) {
+      pending = true;
+      sendBtn.disabled = true;
 
       appendMessage(question, "user");
-      input.value = "";
-
-      const typing = document.createElement("div");
-      typing.classList.add("message", "bot");
-      typing.textContent = "Thinking...";
-      chatBox.appendChild(typing);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      const typing = appendTyping();
 
       try {
         const res = await fetch(`${BACKEND_URL}/ask`, {
@@ -362,17 +747,53 @@
         });
         const data = await res.json();
         typing.remove();
-        appendMessage(data.answer || "No answer found in the document.", "bot");
+        if (data.answer) {
+          appendMessage(data.answer, "bot");
+        } else {
+          appendMessage(data.error || "No answer found in the document.", "bot", { error: !!data.error });
+        }
       } catch (err) {
         typing.remove();
-        appendMessage("⚠️ Error contacting backend.", "bot");
+        appendMessage("⚠️ Could not reach the server. Please try again in a moment. (تعذّر الاتصال بالخادم، حاول مرة أخرى)", "bot", { error: true });
+      } finally {
+        pending = false;
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const question = input.value.trim();
+      if (!question || pending) return;
+      input.value = "";
+      input.style.height = "auto";
+      sendQuestion(question);
+    });
+
+    // Enter to send, Shift+Enter for a new line
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
       }
     });
 
+    // Auto-grow textarea
     input.addEventListener("input", () => {
       input.style.height = "auto";
       input.style.height = input.scrollHeight + "px";
     });
+
+    // ===== Clear chat =====
+    clearBtn.addEventListener("click", () => {
+      showWelcome();
+      input.focus();
+    });
+
+    // ===== Init =====
+    showWelcome();
+    input.focus();
   </script>
 </body>
 </html>
