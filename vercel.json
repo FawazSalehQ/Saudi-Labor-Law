@@ -4,12 +4,19 @@
     {
       "src": "index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "saudi_sigil.png",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.pdf",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*\\.pdf)",
-      "dest": "/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
